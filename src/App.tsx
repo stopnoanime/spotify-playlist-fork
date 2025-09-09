@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import './App.css'
-import { forkPlaylist, getUserPlaylists, syncPlaylist, type ForkInfo, type Playlist } from './spotify'
+import { forkPlaylist, getUserPlaylists, syncPlaylist, type Playlist } from './spotify'
 
 function App() {
   const [playlists, setPlaylists] = useState<Playlist[]>([])
