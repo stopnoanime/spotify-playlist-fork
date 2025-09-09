@@ -1,13 +1,69 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import './App.css'
-import { run } from './spotify'
+import { forkPlaylist, getUserPlaylists, syncPlaylist, type ForkInfo, type Playlist } from './spotify'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [playlists, setPlaylists] = useState<Playlist[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    getUserPlaylists().then(res => {
+      setPlaylists(res)
+      setLoading(false)
+    })
+  }, [])
+
+  const sync = async (playlist: Playlist) => {
+    setLoading(true);
+    await syncPlaylist(playlist.id, playlist.forkInfo!);
+    setLoading(false);
+  }
+
+  const fork = async (playlist: Playlist) => {
+    setLoading(true);
+    await forkPlaylist(playlist.id, playlist.name);
+    location.reload();
+  }
 
   return (
     <>
-      <button onClick={() => run()}>Run</button> 
+      <h1>Spotify Playlists</h1>
+      {loading ? (
+        <p>Loading...</p>
+      ) : (
+        <table>
+          <thead>
+            <tr>
+              <th>Image</th>
+              <th>Name</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {playlists.map(playlist => (
+              <tr key={playlist.id}>
+                <td>
+                  {playlist.imageUrl ? (
+                    <img
+                      src={playlist.imageUrl}
+                      style={{ width: 50, height: 50, objectFit: 'cover' }}
+                    />
+                  ) : (
+                    <span>No image</span>
+                  )}
+                </td>
+                <td>{playlist.name}</td>
+                <td>
+                  {playlist.forkInfo && (
+                    <button onClick={() => sync(playlist)}>Sync</button>
+                  )}
+                  <button onClick={() => fork(playlist)}>Fork</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </>
   )
 }
