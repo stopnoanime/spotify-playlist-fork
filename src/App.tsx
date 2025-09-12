@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import './App.css'
-import { forkPlaylist, getUserPlaylists, syncPlaylist, type Playlist } from './spotify'
+import { forkPlaylist, getUserPlaylists, shufflePlaylist, syncPlaylist, type Playlist } from './spotify'
 
 function App() {
   const [playlists, setPlaylists] = useState<Playlist[]>([])
@@ -23,6 +23,12 @@ function App() {
     setLoading(true);
     await forkPlaylist(playlist.id, playlist.name);
     location.reload();
+  }
+
+  const shuffle = async (playlist: Playlist) => {
+    setLoading(true);
+    await shufflePlaylist(playlist.id);
+    setLoading(false);
   }
 
   return (
@@ -58,6 +64,7 @@ function App() {
                     <button onClick={() => sync(playlist)}>Sync</button>
                   )}
                   <button onClick={() => fork(playlist)}>Fork</button>
+                  <button onClick={() => shuffle(playlist)}>Shuffle</button>
                 </td>
               </tr>
             ))}

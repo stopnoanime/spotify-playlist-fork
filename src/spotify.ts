@@ -26,6 +26,8 @@ const sdk = SpotifyApi.withUserAuthorization(
     ]
 )
 
+const SPOTIFY_TRACK_LIMIT = Number(import.meta.env.VITE_SPOTIFY_TRACK_LIMIT)
+
 export async function getUserPlaylists(): Promise<Playlist[]> {
     const playlists = await sdk.currentUser.playlists.playlists();
 
@@ -64,6 +66,21 @@ export async function syncPlaylist(playlistId: string, forkInfo: ForkInfo) {
     await appendPlaylistTracks(playlistId, newTracks);
 }
 
+export async function shufflePlaylist(playlistId: string) {
+    const allTracks = await getAllPlaylistTracks(playlistId);
+
+    // Shuffle using Fisher-Yates algorithm
+    for (let i = allTracks.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [allTracks[i], allTracks[j]] = [allTracks[j], allTracks[i]];
+    }
+
+    // Clear existing tracks
+    await sdk.playlists.updatePlaylistItems(playlistId, {uris: []});
+
+    await appendPlaylistTracks(playlistId, allTracks);
+}
+
 function createForkInfo(originalPlaylistId: string) {
     return `FORK#${originalPlaylistId}#${Date.now().toString(36)}`
 }
@@ -100,7 +117,7 @@ async function getAllPlaylistTracks(playlistId: string) {
 
         allTracks.push(
             ...tracks.items
-                .filter(item => item.track && item.track.uri)
+                .filter(item => item.added_at && item.track && item.track.uri)
                 .map(item => ({
                     uri: item.track.uri,
                     addedAt: new Date(item.added_at).getTime()
@@ -116,9 +133,9 @@ async function appendPlaylistTracks(playlistId: string, tracks: TrackInfo[]) {
     while (offset < uris.length) {
         await sdk.playlists.addItemsToPlaylist(
             playlistId,
-            uris.slice(offset, offset + import.meta.env.VITE_SPOTIFY_TRACK_LIMIT)
+            uris.slice(offset, offset + SPOTIFY_TRACK_LIMIT)
         );
 
-        offset += import.meta.env.VITE_SPOTIFY_TRACK_LIMIT;
+        offset += SPOTIFY_TRACK_LIMIT;
     }
 }
