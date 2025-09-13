@@ -1,42 +1,52 @@
 import { useEffect, useState } from 'react'
 import './App.css'
-import { forkPlaylist, getUserPlaylists, shufflePlaylist, syncPlaylist, type Playlist } from './spotify'
+import { forkPlaylist, getUserPlaylists, shufflePlaylist, syncPlaylist } from './spotify/api'
+import { type Playlist } from "./spotify/types"
 
 function App() {
   const [playlists, setPlaylists] = useState<Playlist[]>([])
-  const [loading, setLoading] = useState(true)
+  
+  const [loadingStatus, _setLoadingStatus] = useState("Loading")
+  const [loading, setLoading] = useState(true);
+  const setLoadingStatus = (status: string) => {
+    _setLoadingStatus(status);
+    setLoading(true);
+  }
+  const stopLoading = () => setTimeout(() => setLoading(false), 500);
 
-  useEffect(() => {
-    getUserPlaylists().then(res => {
+  const loadUserPlaylists = () => {
+    getUserPlaylists(setLoadingStatus).then(res => {
       setPlaylists(res)
-      setLoading(false)
+      stopLoading();
     })
-  }, [])
+  }
+
+  useEffect(loadUserPlaylists, [])
 
   const sync = async (playlist: Playlist) => {
-    setLoading(true);
-    await syncPlaylist(playlist.id, playlist.forkInfo!);
-    setLoading(false);
+    await syncPlaylist(playlist.id, playlist.forkInfo!, setLoadingStatus);
+    stopLoading();
   }
 
   const fork = async (playlist: Playlist) => {
-    setLoading(true);
-    await forkPlaylist(playlist.id, playlist.name);
-    location.reload();
+    await forkPlaylist(playlist.id, playlist.name, setLoadingStatus);
+    loadUserPlaylists();
   }
 
   const shuffle = async (playlist: Playlist) => {
-    setLoading(true);
-    await shufflePlaylist(playlist.id);
-    setLoading(false);
+    await shufflePlaylist(playlist.id, setLoadingStatus);
+    stopLoading();
   }
 
   return (
     <>
+      <div className={`overlay ${loading ? 'visible' : ''}`}>
+        <div className='popup'>
+          <div className='spinner'></div>
+          <span className='loading-status'>{loadingStatus}</span>
+        </div>
+      </div>
       <h1>Spotify Playlists</h1>
-      {loading ? (
-        <p>Loading...</p>
-      ) : (
         <table>
           <thead>
             <tr>
@@ -70,7 +80,6 @@ function App() {
             ))}
           </tbody>
         </table>
-      )}
     </>
   )
 }
