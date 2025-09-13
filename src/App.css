@@ -1,7 +1,72 @@
 :root {
-  background-color: #eeeeee;
+  background-color: #f5f5f5;
   font-family: sans-serif;
   color: #171717;
+  padding: 12px;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+table {
+  width: 100%;
+  max-width: 800px;
+  background: white;
+  border-collapse: collapse;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+th, td {
+  padding: 16px;
+}
+
+tr {
+  border-bottom: 1px solid #d4d4d4;
+}
+
+.cell-name {
+  text-align: left;
+}
+
+button {
+  background-color: #22c55e;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.2s ease;
+  margin-right: 8px;
+  margin-top: 2px;
+}
+
+button:last-child {
+  margin-right: 0px;
+}
+
+button:hover {
+  background-color: #4ade80;
+}
+
+.cover-image {
+  border-radius: 8px;
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+.no-image {
+  display: flex;
+  align-items: center;
+  font-size: 0.8rem;
+  background-color: #d4d4d4;
 }
 
 .overlay {
@@ -28,7 +93,6 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  text-align: center;
 }
 
 .loading-status {

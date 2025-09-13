@@ -46,13 +46,21 @@ function App() {
           <span className='loading-status'>{loadingStatus}</span>
         </div>
       </div>
-      <h1>Spotify Playlists</h1>
+      <h1>Spotify Playlists Fork</h1>
+      <p>
+        A simple tool to fork and sync your Spotify playlists
+      </p>
+      {!loading && (
+        playlists.length == 0 ? 
+        <p>
+          You have no Spotify playlists.
+        </p> :
         <table>
           <thead>
             <tr>
-              <th>Image</th>
-              <th>Name</th>
-              <th>Actions</th>
+              <th>IMAGE</th>
+              <th>NAME</th>
+              <th>ACTIONS</th>
             </tr>
           </thead>
           <tbody>
@@ -62,13 +70,13 @@ function App() {
                   {playlist.imageUrl ? (
                     <img
                       src={playlist.imageUrl}
-                      style={{ width: 50, height: 50, objectFit: 'cover' }}
+                      className="cover-image"
                     />
                   ) : (
-                    <span>No image</span>
+                    <div className="cover-image no-image">No Image</div>
                   )}
                 </td>
-                <td>{playlist.name}</td>
+                <td className='cell-name'>{playlist.name}</td>
                 <td>
                   {playlist.forkInfo && (
                     <button onClick={() => sync(playlist)}>Sync</button>
@@ -80,6 +88,7 @@ function App() {
             ))}
           </tbody>
         </table>
+      )}
     </>
   )
 }
