@@ -5,14 +5,16 @@ import { type Playlist } from "./spotify/types"
 
 function App() {
   const [playlists, setPlaylists] = useState<Playlist[]>([])
-  
+
   const [loadingStatus, _setLoadingStatus] = useState("Loading")
   const [loading, setLoading] = useState(true);
   const setLoadingStatus = (status: string) => {
     _setLoadingStatus(status);
     setLoading(true);
   }
-  const stopLoading = () => setTimeout(() => setLoading(false), 500);
+
+  // The delay makes it possible to read the final loading status
+  const stopLoading = () => setTimeout(() => setLoading(false), 300);
 
   const loadUserPlaylists = () => {
     getUserPlaylists(setLoadingStatus).then(res => {
@@ -50,11 +52,7 @@ function App() {
       <p>
         A simple tool to fork and sync your Spotify playlists
       </p>
-      {!loading && (
-        playlists.length == 0 ? 
-        <p>
-          You have no Spotify playlists.
-        </p> :
+      {playlists.length != 0 ? (
         <table>
           <thead>
             <tr>
@@ -88,6 +86,8 @@ function App() {
             ))}
           </tbody>
         </table>
+      ) : !loading && (
+        <p>No playlists found in your account.</p>
       )}
     </>
   )
