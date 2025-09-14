@@ -5,6 +5,9 @@ export async function getUserPlaylists(status: StatusFunc): Promise<Playlist[]> 
     status("Fetching user playlists");
     const playlists = await sdk.currentUser.playlists.playlists();
 
+    if (playlists == null) // Spotify SDK returns null if we are not authenticated 
+        return []; // Spotify SDK will redirect, so just return empty list to avoid logging errors
+
     return playlists.items.map(p => {
         const imageUrl = p.images && p.images.length > 0 ? p.images[0].url : null;
 

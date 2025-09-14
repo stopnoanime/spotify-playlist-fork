@@ -15,7 +15,10 @@ function App() {
   }
 
   // The delay makes it possible to read the final loading status
-  const stopLoading = () => setTimeout(() => setLoading(false), 300);
+  const stopLoading = () => setTimeout(() => {
+    setLoading(false);
+    setError("");
+  }, 300);
 
   const loadUserPlaylists = () => {
     getUserPlaylists(setLoadingStatus).then(res => {
