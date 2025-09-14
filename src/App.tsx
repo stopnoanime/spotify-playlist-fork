@@ -6,6 +6,7 @@ import { type Playlist } from "./spotify/types"
 function App() {
   const [playlists, setPlaylists] = useState<Playlist[]>([])
 
+  const [error, setError] = useState<string>("");
   const [loadingStatus, _setLoadingStatus] = useState("Loading")
   const [loading, setLoading] = useState(true);
   const setLoadingStatus = (status: string) => {
@@ -20,33 +21,55 @@ function App() {
     getUserPlaylists(setLoadingStatus).then(res => {
       setPlaylists(res)
       stopLoading();
-    })
+    }).catch(() => {
+      setError("Failed to load user playlists");
+    });
   }
 
   useEffect(loadUserPlaylists, [])
 
   const sync = async (playlist: Playlist) => {
-    await syncPlaylist(playlist.id, playlist.forkInfo!, setLoadingStatus);
-    stopLoading();
+    try {
+      await syncPlaylist(playlist.id, playlist.forkInfo!, setLoadingStatus);
+      stopLoading();
+    } catch {
+      setError("Failed to sync playlist");
+    }
   }
 
   const fork = async (playlist: Playlist) => {
-    await forkPlaylist(playlist.id, playlist.name, setLoadingStatus);
-    loadUserPlaylists();
+    try {
+      await forkPlaylist(playlist.id, playlist.name, setLoadingStatus);
+      loadUserPlaylists();
+    } catch {
+      setError("Failed to fork playlist");
+    }
   }
 
   const shuffle = async (playlist: Playlist) => {
-    await shufflePlaylist(playlist.id, setLoadingStatus);
-    stopLoading();
+    try {
+      await shufflePlaylist(playlist.id, setLoadingStatus);
+      stopLoading();
+    } catch {
+      setError("Failed to shuffle playlist");
+    }
   }
 
   return (
     <>
-      <div className={`overlay ${loading ? 'visible' : ''}`}>
-        <div className='popup'>
-          <div className='spinner'></div>
-          <span className='loading-status'>{loadingStatus}</span>
-        </div>
+      <div className={`overlay ${(loading || error) ? 'visible' : ''}`}>
+        {error && 
+          <div className='popup'>
+            <span className='error-status'>{error}</span>
+            <p>Try reloading the page or checking your internet connection</p>
+          </div>
+        }
+        {!error && 
+          <div className='popup'>
+            <div className='spinner'></div>
+            <span className='loading-status'>{loadingStatus}</span>
+          </div>
+        }
       </div>
       <h1>Spotify Playlists Fork</h1>
       <p>

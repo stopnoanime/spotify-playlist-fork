@@ -119,3 +119,8 @@ button:hover {
     transform: rotate(360deg);
   }
 }
+
+.error-status {
+  font-weight: 600;
+  color: #ef4444;
+}
