@@ -72,3 +72,20 @@ export async function appendPlaylistTracks(playlistId: string, tracks: TrackInfo
         offset += SPOTIFY_TRACK_LIMIT;
     }
 }
+
+export async function deleteStartPlaylistTracks(playlistId: string, count: number, status: StatusFunc) {
+    // Remove tracks from the end to the start to avoid messing up positions
+    const positions = [...Array(count).keys()].reverse();    
+    let offset = 0;
+
+    while (offset < positions.length) {
+        status(`Removing old tracks from playlist (${offset} removed)`);
+        await sdk.playlists.removeItemsFromPlaylist(
+            playlistId,
+            // @ts-ignore
+            { positions: positions.slice(offset, offset + SPOTIFY_TRACK_LIMIT) }
+        );
+
+        offset += SPOTIFY_TRACK_LIMIT;
+    }
+}

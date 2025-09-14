@@ -1,5 +1,5 @@
 import type { Playlist, ForkInfo, StatusFunc } from "./types";
-import { extractForkInfo, getAllPlaylistTracks, createForkInfo, appendPlaylistTracks, sdk } from ".//utils";
+import { extractForkInfo, getAllPlaylistTracks, createForkInfo, appendPlaylistTracks, sdk, deleteStartPlaylistTracks } from ".//utils";
 
 export async function getUserPlaylists(status: StatusFunc): Promise<Playlist[]> {
     status("Fetching user playlists");
@@ -51,10 +51,11 @@ export async function shufflePlaylist(playlistId: string, status: StatusFunc) {
         [allTracks[i], allTracks[j]] = [allTracks[j], allTracks[i]];
     }
 
-    status("Clearing existing tracks");
-    await sdk.playlists.updatePlaylistItems(playlistId, {uris: []});
-
+    // Add the shuffled tracks to the end of the playlist
     await appendPlaylistTracks(playlistId, allTracks, status);
+
+    // Remove old tracks from the start of the playlist
+    await deleteStartPlaylistTracks(playlistId, allTracks.length, status);
 
     status("Playlist shuffled successfully");
 }
