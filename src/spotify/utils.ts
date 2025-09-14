@@ -1,5 +1,5 @@
 import { SpotifyApi } from "@spotify/web-api-ts-sdk";
-import type { StatusFunc, TrackInfo } from "./types";
+import type { ForkInfo, StatusFunc, TrackInfo } from "./types";
 
 export const SPOTIFY_TRACK_LIMIT = Number(import.meta.env.VITE_SPOTIFY_TRACK_LIMIT)
 
@@ -12,11 +12,11 @@ export const sdk = SpotifyApi.withUserAuthorization(
     ]
 )
 
-export function createForkInfo(originalPlaylistId: string) {
-    return `FORK#${originalPlaylistId}#${Date.now().toString(36)}`;
+export function formatForkInfo(forkInfo: ForkInfo): string {
+    return `FORK#${forkInfo.originalPlaylistId}#${forkInfo.lastSyncDate.toString(36)}`;
 }
 
-export function extractForkInfo(description: string) {
+export function extractForkInfo(description: string): ForkInfo | null {
     const match = description.match(/FORK#([0-9A-Za-z]+)#([0-9a-z]+)/);
 
     if (!match) return null;

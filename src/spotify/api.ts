@@ -1,5 +1,5 @@
 import type { Playlist, ForkInfo, StatusFunc } from "./types";
-import { extractForkInfo, getAllPlaylistTracks, createForkInfo, appendPlaylistTracks, sdk, deleteStartPlaylistTracks } from ".//utils";
+import { extractForkInfo, getAllPlaylistTracks, formatForkInfo, appendPlaylistTracks, sdk, deleteStartPlaylistTracks } from ".//utils";
 
 export async function getUserPlaylists(status: StatusFunc): Promise<Playlist[]> {
     status("Fetching user playlists");
@@ -24,7 +24,7 @@ export async function forkPlaylist(playlistId: string, playlistName: string, sta
     const userId = (await sdk.currentUser.profile()).id;
     const newPlaylist = await sdk.playlists.createPlaylist(userId, {
         name: `${playlistName} - Forked`,
-        description: createForkInfo(playlistId),
+        description: formatForkInfo({ originalPlaylistId: playlistId, lastSyncDate: Date.now() }),
         public: false
     });
 
@@ -38,6 +38,10 @@ export async function syncPlaylist(playlistId: string, forkInfo: ForkInfo, statu
     const newTracks = allTracks.filter(t => t.addedAt > forkInfo.lastSyncDate);
 
     await appendPlaylistTracks(playlistId, newTracks, status);
+
+    status("Updating sync information");
+    forkInfo.lastSyncDate = Date.now();
+    await sdk.playlists.changePlaylistDetails(playlistId, {description: formatForkInfo(forkInfo)});
 
     status("Playlist synced successfully");
 }
